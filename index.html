@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE ONE</title>
+    
+    <!-- Font: Cinzel for the divine/ancient aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #a3a3a3;
+            --gold-glow: rgba(255, 215, 0, 0.3);
+            --white-glow: rgba(255, 255, 255, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: url('background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* The Vignette: Darkens edges to focus on the center */
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- THE ALMIGHTY (LOGO) --- */
+        .almighty-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 1s ease-in-out;
+        }
+
+        .god-logo {
+            width: 250px; /* Adjust size as needed */
+            height: auto;
+            cursor: pointer;
+            border-radius: 40%;
+            animation: breathe 6s infinite ease-in-out;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .god-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* The Breathing Animation */
+        @keyframes breathe {
+            0% { transform: scale(1); filter: drop-shadow(0 0 25px rgba(255, 217, 0, 0)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 50px rgba(255, 217, 0, 0)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 25px rgba(255, 217, 0, 0)); }
+        }
+
+        /* --- SUBTITLE / TWITTER --- */
+        .subtitle {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: black;
+            opacity: 0.7;
+            text-decoration: none;
+            transition: opacity 0.3s, color 0.3s;
+            position: relative;
+        }
+
+        .subtitle:hover {
+            opacity: 1;
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        /* --- HIDDEN INTERFACE (Logic Layer) --- */
+        /* This stays invisible until the user interacts with "God" */
+        .interface-layer {
+            position: absolute;
+            bottom: 15%;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .interface-layer.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Minimal Inputs styling (if needed) */
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
+            color: white;
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background: transparent;
+            border: 1px solid #444;
+            color: #888;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            border-color: #fff;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+
+        .hidden { display: none; }
+        .msg { font-size: 0.7rem; color: #555; margin-bottom: 15px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- CENTERPIECE -->
+    <div class="almighty-container" id="center-stage">
+        <!-- The "God" Image -->
+        <img src="Gemini_Generated_Image_htymsxhtymsxhtym.png" alt="The Almighty" class="god-logo" onclick="revealSystem()">
+        
+        <!-- The Subtitle Link -->
+        <a href="https://twitter.com/RecruitPass" target="_blank" class="subtitle">
+            Follow the Path
+        </a>
+    </div>
+
+    <!-- THE LOGIC (Initially Hidden) -->
+    <!-- Revealed only when the user clicks the Logo -->
+    <div class="interface-layer" id="system-ui">
+        
+        <!-- View 1: Connect -->
+        <div id="view-connect">
+            <p class="msg">Connect to Reveal Allocation</p>
+            <button onclick="connectWallet()">Connect Essence</button>
+        </div>
+
+        <!-- View 2: Dashboard -->
+        <div id="view-dashboard" class="hidden">
+            <p class="msg" id="wallet-display" style="color:#888;">...</p>
+            <h2 style="color:white; margin-bottom:5px;">5,000 RP</h2>
+            <p class="msg" id="status-display" style="color:#500;">LOCKED</p>
+            
+            <input type="text" id="ref-link" readonly value="..." onclick="copyLink()">
+            <p class="msg" style="margin-top:5px;">Share to Unlock</p>
+        </div>
+
+        <!-- View 3: Success -->
+        <div id="view-success" class="hidden">
+            <h2 style="color:gold;">UNLOCKED</h2>
+            <button style="margin-top:10px;">Claim</button>
+        </div>
+
+    </div>
+
+    <script>
+        let isSystemRevealed = false;
+        let walletAddress = null;
+
+        // 1. Reveal Logic: Clicking the logo brings up the UI gently
+        function revealSystem() {
+            if (isSystemRevealed) return; // Already open
+            
+            // Move the Logo up slightly to make room
+            document.getElementById('center-stage').style.transform = "translateY(-10%)";
+            
+            // Fade in the UI
+            document.getElementById('system-ui').classList.add('active');
+            isSystemRevealed = true;
+        }
+
+        // 2. Mock Wallet Connect
+        function connectWallet() {
+            // In a real solana app, use window.solana.connect()
+            const mock = "8xH...jKm"; 
+            walletAddress = mock;
+            
+            document.getElementById('view-connect').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+            
+            // Set Wallet & Link
+            document.getElementById('wallet-display').innerText = walletAddress;
+            const link = window.location.origin + "?ref=" + walletAddress;
+            document.getElementById('ref-link').value = link;
+
+            // Check URL for recruit param
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('ref')) {
+                // If they came via referral, trigger success logic for demo
+                // (In real app, this would be a separate recruit view)
+                alert("You have been recruited.");
+            }
+        }
+
+        // 3. Copy Link
+        function copyLink() {
+            const copyText = document.getElementById("ref-link");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            
+            const status = document.getElementById('status-display');
+            status.innerText = "COPIED";
+            setTimeout(() => status.innerText = "LOCKED", 2000);
+        }
+    </script>
+
+</body>
+</html>
